@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商城-注册</title>
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/frame.css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot');
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+    </style>
+</head>
+<body>
+<div id="top" class="container-fluid"></div>
+<div class="container-fluid">
+    <div class="row col-xs-offset-4 col-sm-offset-4 col-xs-4 col-sm-4 middle col-center-block">
+        <form id="registerForm" class="text-center">
+            <input type="text" name="phone" id="phone" value="" placeholder="手机号码">
+            <input type="text" name="name" id="name" value="" placeholder="用户名">
+            <input type="text" name="email" id="email" value="" placeholder="电子邮箱">
+            <input type="password" name="pwd" id="pwd" value="" placeholder="设置密码（8-20位字母或数字）">
+            <input type="password" name="repwd" id="repwd" value="" placeholder="确认密码">
+            <p id="errorFrame"></p>
+            <button id="register_btn" type="button" onsubmit="return false">注册</button>
+        </form>
+    </div>
+</div>
+<div id="bottom" class="container-fluid"></div>
+
+<script>
+    function checkPhone() {
+        var phonehandle = $("#phone");
+        var phone = phonehandle.val();
+        var phoneReg = /^1[34578]\d{9}$/;
+        if (phoneReg.test(phone)) {
+            phonehandle.css("border", "1px solid green");
+            return true;
+        } else {
+            phonehandle.css("border", "1px solid red");
+            return false;
+        }
+    }
+
+    function checkName() {
+        var namehandle = $("#name");
+        var name = namehandle.val();
+        if (name == "" || name == "null") {
+            namehandle.css("border", "1px solid red");
+            return false;
+        } else {
+            namehandle.css("border", "1px solid green");
+            return true;
+        }
+    }
+
+    function checkEmail() {
+        var emailhandle = $("#email");
+        var email = emailhandle.val();
+        var emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+        if (emailReg.test(email)) {
+            emailhandle.css("border", "1px solid green");
+            return true;
+        } else {
+            emailhandle.css("border", "1px solid red");
+            return false;
+        }
+    }
+
+    function checkPwd() {
+        var pwdhandel = $("#pwd");
+        var pwd = pwdhandel.val();
+        var pwdReg = /^([0-9]|[a-zA-Z]){8,20}$/;
+        if (pwdReg.test(pwd)) {
+            pwdhandel.css("border", "1px solid green");
+            return true;
+        } else {
+            pwdhandel.css("border", "1px solid red");
+            return false;
+        }
+    }
+
+    function reCheckPwd() {
+        var pwdhandel = $("#pwd");
+        var pwd = pwdhandel.val();
+        var repwdhandel = $("#repwd");
+        var repwd = repwdhandel.val();
+        if (pwd == repwd) {
+            repwdhandel.css("border", "1px solid green");
+            return true;
+        } else {
+            repwdhandel.css("border", "1px solid red");
+            return false;
+        }
+    }
+
+    $(function(){
+        $("#phone").blur(function() {
+            checkPhone();
+        })
+        $("#pwd").blur(function() {
+            checkPwd();
+        })
+        $("#repwd").blur(function() {
+            reCheckPwd();
+        })
+        $("#email").blur(function() {
+            checkEmail();
+        })
+        $("#name").blur(function () {
+            checkName();
+        })
+        $("#register_btn").click(function() {
+            if (checkPhone() && checkPwd() && reCheckPwd() && checkEmail() && checkName()) {
+                $.ajax({
+                    url:"servlet/RegisterServlet",
+                    data: $("#registerForm").serialize(),
+                    type:"POST",
+                    dataType:"json",
+                    success:function(data) {
+                        if (data.flag) {
+                                window.location.href="./productlist.html";
+                        } else {
+                            $("#errorFrame").html('该手机号已被注册！')
+                        }
+                    },
+                    error: function (XMLHttpResponse, textStatus, errorThrown) {
+                        alert("1 异步调用返回失败,XMLHttpResponse.readyState:"+XMLHttpResponse.readyState);
+                        alert("2 异步调用返回失败,XMLHttpResponse.status:"+XMLHttpResponse.status);
+                        alert("3 异步调用返回失败,textStatus:"+textStatus);
+                        alert("4 异步调用返回失败,errorThrown:"+errorThrown);
+                    }
+                })
+            } else {
+
+            }
+        })
+    })
+</script>
+</body>
+</html>

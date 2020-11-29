@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商城-登录</title>
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/frame.css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot');
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+    </style>
+</head>
+<body>
+<div id="top" class="container-fluid"></div>
+<div class="container-fluid">
+        <div class="row col-xs-offset-4 col-sm-offset-4 col-xs-4 col-sm-4 middle col-center-block">
+            <form id="loginForm" class="text-center">
+                <p>欢迎登录</p>
+                手机号码<input type="text" name="phone" id="phone" value="" placeholder="手机号码">
+                <br>
+                密码<input type="password" name="pwd" id="pwd" value="" placeholder="密码">
+                <p id="errorFrame"></p>
+                <span>
+                    <button id="login_btn" type="button" onsubmit="return false">登录</button>
+                    <button id="admin_login_btn" type="button" onsubmit="return false">管理员登录</button>
+                </span>
+                <br>
+                <a href ="./register.html">还没有账号？点击注册</a>
+            </form>
+        </div>
+</div>
+<div id="bottom" class="container-fluid"></div>
+
+<script>
+    function checkPhone() {
+        var phonehandle = $("#phone");
+        var phone = phonehandle.val();
+        var phoneReg = /^1[34578]\d{9}$/;
+        if (phoneReg.test(phone)) {
+            phonehandle.css("border", "1px solid green");
+            return true;
+        } else {
+            phonehandle.css("border", "1px solid red");
+            $("#errorFrame").html('手机号码格式不正确!')
+            return false;
+        }
+    }
+
+    $(function(){
+        $("#phone").blur(function() {
+            checkPhone();
+        })
+        $("#login_btn").click(function() {
+            if (checkPhone()) {
+                $.ajax({
+                    url:"servlet/LoginServlet",
+                    data: {"phone":$("#phone").val(),"pwd":$("#pwd").val()},
+                    type:"POST",
+                    dataType:"json",
+                    success:function(data) {
+                        if (data.flag) {
+                            if (data.msg == "success") {
+                                window.location.href="./productlist.html"
+                            } else {
+                                $("#errorFrame").html('密码错误')
+                            }
+                        } else {
+                            $("#errorFrame").html('用户不存在，请先注册!')
+                        }
+                    },
+                    error: function (XMLHttpResponse, textStatus, errorThrown) {
+                        alert("1 异步调用返回失败,XMLHttpResponse.readyState:"+XMLHttpResponse.readyState);
+                        alert("2 异步调用返回失败,XMLHttpResponse.status:"+XMLHttpResponse.status);
+                        alert("3 异步调用返回失败,textStatus:"+textStatus);
+                        alert("4 异步调用返回失败,errorThrown:"+errorThrown);
+                    }
+                })
+            }
+        })
+        $("#admin_login_btn").click(function() {
+            if (checkPhone()) {
+                $.ajax({
+                    url:"servlet/AdminServlet",
+                    data: {"phone":$("#phone").val(),"pwd":$("#pwd").val()},
+                    type:"POST",
+                    dataType:"json",
+                    success:function(data) {
+                        if (data.flag) {
+                            if (data.msg == "success") {
+                                window.location.href="./adminproductlist.html"
+                            } else {
+                                $("#errorFrame").html('密码错误')
+                            }
+                        } else {
+                            $("#errorFrame").html('管理员不存在')
+                        }
+                    },
+                    error: function (XMLHttpResponse, textStatus, errorThrown) {
+                        alert("1 异步调用返回失败,XMLHttpResponse.readyState:"+XMLHttpResponse.readyState);
+                        alert("2 异步调用返回失败,XMLHttpResponse.status:"+XMLHttpResponse.status);
+                        alert("3 异步调用返回失败,textStatus:"+textStatus);
+                        alert("4 异步调用返回失败,errorThrown:"+errorThrown);
+                    }
+                })
+            }
+        })
+    })
+</script>
+</body>
+</html>

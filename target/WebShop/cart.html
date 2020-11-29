@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商城-我的购物车</title>
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/frame.css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot');
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+    </style>
+</head>
+<body>
+<div id="top" class="container-fluid"></div>
+<div class="container-fluid">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>商品图片</th>
+            <th>商品名</th>
+            <th>单价/元</th>
+            <th>数量/个</th>
+            <th>增加</th>
+            <th>减少</th>
+            <th>价格/元</th>
+        </tr>
+        </thead>
+        <tbody id="list">
+        </tbody>
+    </table>
+    <p style="text-align: right" id="tprice"></p>
+    <button style="float: right" onclick="pay();">确认支付</button>
+</div>
+<div id="bottom" class="container-fluid"></div>
+<script>
+    $(function () {
+        $.ajax({
+            url:"servlet/ShowCartServlet",
+            dataType:"json",
+            type:"get",
+            success:function (data) {
+                if (data.flag == true) {
+                    var contentHTML = "";
+                    var total = 0;
+                    for (var i = 0; i < data.data.length; i++) {
+                        contentHTML += "<tr><td><img src=\"./img/" + data.data2[i].img + "\"/></td><td>" + data.data2[i].name + "</td><td class='singleprice'>" + data.data2[i].sale_price + "</td><td id='_" + data.data2[i].id + "'>" + data.data[i] + "</td><td><button onclick='addItem(" + data.data2[i].id + ")'><span class='glyphicon glyphicon-plus'></span></button></td><td><button onclick='delItem(" + data.data2[i].id + ")'><span class='glyphicon glyphicon-minus'></span></button></td><td class='totalprice'>" + (data.data[i]) * (data.data2[i].sale_price) + "</td></tr>";
+                        total += (data.data[i]) * (data.data2[i].sale_price);
+                    }
+                    $("#list").html(contentHTML);
+                    $("#tprice").html("总计：" + total + "元");
+                }
+            }
+        })
+    })
+    function addItem(id) {
+        $.ajax({
+            url:"servlet/CartServlet",
+            data:{"id":id},
+            dataType:"json",
+            type:"post",
+            success:function(data) {
+                if (data.flag == true) {
+                    var num = $("#_" + id).html();
+                    $("#_" + id).html(parseInt(num) + 1);
+                    var sp = $("#_" + id).parent().children(".singleprice");
+                    var tp = $("#_" + id).parent().children(".totalprice");
+                    tp.html(parseInt(tp.html()) + parseInt(sp.html()));
+                    $("#tprice").html("总计：" + (parseInt($("#tprice").html().split("：")[1].split("元")[0]) + parseInt(sp.html())) + "元");
+                } else {
+                    if (data.msg == "no inventory") {
+                        alert("添加失败，已添加商品超过库存！");
+                    }
+                    else {
+                        if (data.msg == "not login") {
+                        } else {
+                            alert("出错！");
+                        }
+                    }
+                }
+            }
+        })
+    }
+    function delItem(id) {
+        $.ajax({
+            url:"servlet/DelCartServlet",
+            data:{"id":id},
+            dataType:"json",
+            type:"post",
+            success:function(data) {
+                if (data.flag == true) {
+                    var num = $("#_" + id).html();
+                    $("#_" + id).html(parseInt(num) - 1);
+                    var sp = $("#_" + id).parent().children(".singleprice");
+                    var tp = $("#_" + id).parent().children(".totalprice");
+                    tp.html(parseInt(tp.html()) - parseInt(sp.html()));
+                    $("#tprice").html("总计：" + (parseInt($("#tprice").html().split("：")[1].split("元")[0]) - parseInt(sp.html())) + "元");
+                } else {
+                    var sp = $("#_" + id).parent().children(".singleprice");
+                    $("#tprice").html("总计：" + (parseInt($("#tprice").html().split("：")[1].split("元")[0]) - parseInt(sp.html())) + "元");
+                    $("#_" + id).parent().remove();
+                }
+            }
+        })
+    }
+    function pay() {
+        $.ajax({
+            url:"servlet/PayServlet",
+            dataType:"json",
+            type:"get",
+            success:function(data) {
+                if (data.flag == true) {
+                    alert("支付成功，谢谢惠顾！");
+                    $("#list").empty();
+                    $("#tprice").html("这里是空的");
+                } else {
+                    alert("支付失败！")
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

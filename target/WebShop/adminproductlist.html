@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理系统</title>
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/frame.css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot');
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+    </style>
+</head>
+<body>
+<div id="admintop" class="container-fluid"></div>
+<div class="container-fluid">
+    <div class="list-group" id="list">
+    </div>
+</div>
+<div id="bottom" class="container-fluid"></div>
+<script>
+    $(function() {
+        var search = window.location.search;
+        var cid = search.split("=")[1];
+        cid = decodeURIComponent(cid);
+        if (cid == "undefined") {
+            $.ajax({
+                url:"servlet/AllItemServlet",
+                dataType:"json",
+                type:"get",
+                success:function(data) {
+                    var contentHTML = "";
+                    for (var i = 0; i < data.data.length; i++) {
+                        var product = data.data[i];
+                        if (i % 4 == 0) contentHTML += "<div class='row'>";
+                        contentHTML += "<div class=\"col-xs-3 col-sm-3\" style=\"background-color: #e0e0e0\"><img src=\"./img/" + product.img + "\" class=\"img-responsive center-block\"><p>" + product.name + "</p><p><span>销量：" + product.sales + " 库存：<span id='_" + product.id + "'>" + product.inventory + "</span> 原价：" + product.price + " 现价：" + product.sale_price + "</span><a href='javascript:void(0);' onclick='delOne(" + product.id + ");'><span class=\"glyphicon glyphicon-minus \" style=\"float: right;\"></span></a><a href='javascript:void(0);' onclick='addOne(" + product.id + ");'><span class=\"glyphicon glyphicon-plus \" style=\"float: right;\"></span></a></p></div>";
+                        if (i % 4 == 3) contentHTML += "</div>";
+                    }
+                    $("#list").html(contentHTML);
+                }
+            })
+        } else {
+            $.ajax({
+                url:"servlet/ProductServlet",
+                data:{"cid":cid},
+                dataType:"json",
+                type:"post",
+                success:function(data) {
+                    var contentHTML = "";
+                    if (data.data != null) {
+                        for (var i = 0; i < data.data.length; i++) {
+                            var product = data.data[i];
+                            if (i % 4 == 0) contentHTML += "<div class='row'>";
+                            contentHTML += "<div class=\"col-xs-3 col-sm-3\" style=\"background-color: #e0e0e0\"><img src=\"./img/" + product.img + "\" class=\"img-responsive center-block\"><p>" + product.name + "</p><p><span>销量：" + product.sales + " 库存：<span id='_" + product.id + "'>" + product.inventory + "</span> 原价：" + product.price + " 现价：" + product.sale_price + "</span><a href='javascript:void(0);' onclick='delOne(" + product.id + ");'><span class=\"glyphicon glyphicon-minus \" style=\"float: right;\"></span></a><a href='javascript:void(0);' onclick='addOne(" + product.id + ");'><span class=\"glyphicon glyphicon-plus \" style=\"float: right;\"></span></a></p></div>";
+                            if (i % 4 == 3) contentHTML += "</div>";
+                        }
+                    }
+                    $("#list").html(contentHTML);
+                }
+            })
+        }
+    })
+    function addOne(id) {
+        $.ajax({
+            url:"servlet/AddServlet",
+            data:{"id":id},
+            dataType:"json",
+            type:"post",
+            success:function(data) {
+                if (data.flag == true) {
+                    var num = $("#_" + id).html();
+                    $("#_" + id).html(parseInt(num)+1);
+                }
+            }
+        })
+    }
+    function delOne(id) {
+        $.ajax({
+            url:"servlet/DelServlet",
+            data:{"id":id},
+            dataType:"json",
+            type:"post",
+            success:function(data) {
+                if (data.flag == true) {
+                    var num = $("#_" + id).html();
+                    $("#_" + id).html(parseInt(num)-1);
+                } else {
+                    alert("该商品库存已清空！")
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

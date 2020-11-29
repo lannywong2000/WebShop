@@ -1,0 +1,112 @@
+<div id="admintop">
+    <div class="row">
+        <nav class="navbar navbar-default" id="toolbar">
+            <div class="navbar-header">
+                <a href="./adminproductlist.html">
+                    <p class="navbar-brand">电子商城</p>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:void(0);" id="main"><span class="glyphicon glyphicon-home"></span>首页</a></li>
+                <li><a href="javascript:void(0);" id="upload"><span class="glyphicon glyphicon-edit"></span>上架</a></li>
+                <li><a href="javascript:void(0);" id="sales"><span class="glyphicon glyphicon-stats"></span>销售</a></li>
+                <li><a href="javascript:void(0);" id="logout"><span class="glyphicon glyphicon-log-out"></span>注销</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="row", id="subject">
+        <div class="col-xs-2 col-sm-2" id="logo">
+            <strong id="usrname"></strong>
+        </div>
+        <div class="col-xs-1 col-sm-1"></div>
+        <div class="col-xs-6 col-sm-6" id="search">
+            <form action="/serach.html" method="post">
+                <div class="input-group">
+                    <input type="text" name="keyword" id="keyword" class="form-control" placeholder="搜索商品"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="search();">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="col-xs-1 col-sm-1"></div>
+        <div class="col-xs-1 col-sm-1" id="cart">
+            <button type="button" class="btn btn-default" onclick="goToOrder();">
+                订单
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+        </div>
+        <div class="col-xs-1 col-sm-1"></div>
+    </div>
+    <br>
+    <div class="row">
+        <nav class="navbar navbar-default" id="nvbar">
+            <ul class="nav nav-pills nav-justified" id="nv">
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    function search() {
+        var search = $("#keyword").val();
+        window.location.href="./adminproductlist.html?cid=" + search;
+    }
+
+    function goToOrder() {
+        window.location.href="./order.html";
+    }
+
+    $(function() {
+        $("#logout").click(function() {
+            $.ajax({
+                url:"servlet/LogoutServlet",
+                dataType:"json",
+                success:function(data) {
+                    if (data.flag == true) {
+                        window.location.href="./login.html";
+                    }
+                }
+            })
+        })
+
+        $("#upload").click(function() {
+            window.location.href="./upoad.html";
+        })
+
+        $("#sales").click(function() {
+            window.location.href="./sales.html";
+        })
+
+        $("#main").click(function() {
+            window.location.href="./adminproductlist.html";
+        })
+
+        $.ajax({
+            url:"servlet/CategoryServlet",
+            dataType:"json",
+            type:"get",
+            contentType: 'text/json,charset=utf-8',
+            success:function (data) {
+                var contentHTML = "";
+                for (var i = 0; i < data.data.length; i++) {
+                    var category = data.data[i];
+                    contentHTML+="<li><a href=\"./adminproductlist.html?cid="+category.id + '\">'+ decodeURI(category.name) + "</a></li>";
+                }
+                $("#nv").html(contentHTML);
+            }
+        })
+
+        $.ajax({
+            url:"servlet/FindAdminServlet",
+            dataType:"json",
+            type:"get",
+            success:function (data) {
+                $("#usrname").html("管理员：" + (data.data).name);
+            }
+        })
+    })
+</script>

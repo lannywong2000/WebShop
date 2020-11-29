@@ -1,0 +1,69 @@
+<head>
+    <meta charset="UTF-8">
+    <title>管理系统-订单</title>
+    <script type="text/javascript" src="js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/frame.css">
+    <style type="text/css">
+        @font-face {
+            font-family: 'Glyphicons Halflings';
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot');
+            src: url('bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+        }
+    </style>
+</head>
+<body>
+<div id="admintop" class="container-fluid"></div>
+<div id="tobefilled" class="container-fluid">
+    <p><span>订单编号：</span><span>顾客手机：</span><span>订单时间：</span></p>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>商品编号</th>
+            <th>商品名</th>
+            <th>单价/元</th>
+            <th>数量/个</th>
+            <th>价格/元</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p><span style="float: right">订单金额：</span></p>
+</div>
+<div id="bottom" class="container-fluid"></div>
+<script>
+$(function() {
+    $.ajax({
+        url:"servlet/OrderServlet",
+        dataType:"json",
+        type:"get",
+        contentType: 'text/json,charset=utf-8',
+        success:function (data) {
+            if (data.float == true) {
+                var contentHTML = "";
+                for (var i = 0; i < data.data.length; i++) {
+                    contentHTML+="<p><span>订单编号：" + data.data[i].oid + "</span><span>顾客手机：" + data.data2[i].phone + "</span><span>订单时间：" + data.data[i].btime + "</span></p>\n" +
+                        "    <table class=\"table table-hover\">\n" +
+                        "        <thead>\n" +
+                        "        <tr>\n" +
+                        "            <th>商品编号</th>\n" +
+                        "            <th>商品名</th>\n" +
+                        "            <th>单价/元</th>\n" +
+                        "            <th>数量/个</th>\n" +
+                        "            <th>价格/元</th>\n" +
+                        "        </tr>\n" +
+                        "        </thead>\n" +
+                        "        <tbody>";
+                    
+                }
+                $("#tobefilled").html(contentHTML);
+            }
+        }
+    })
+})
+</script>
+</body>
+</html>
